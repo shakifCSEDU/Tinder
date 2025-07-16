@@ -14,8 +14,8 @@ app.use(express.json());
 app.post("/signup",async(req,res)=>{
     const user = new User(req.body);
     try{
-        await user.save();
-        res.send("User Added successfully!");
+        const signedUpuser = await user.save();
+        res.status(201).send(signedUpuser);
     }catch(err){
         res.status(400).send("Error saving the user: "+err.message);
     }
@@ -62,10 +62,13 @@ app.patch("/user",async (req,res)=>{
     const data = req.body;
     const id  = data.userId;
     try{
-        await User.findByIdAndUpdate({_id:id},data);
+        await User.findByIdAndUpdate({_id:id},data,{
+            returnDocument: "after",
+            runValidators: true,
+        });
         res.send("User Updated  successfully!");
     }catch(err){
-        res.status(400).send("Something went wrong");
+        res.status(400).send("UPDATE FAILED: "+err.message);
     }
 });
 
