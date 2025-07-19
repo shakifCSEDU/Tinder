@@ -8,9 +8,13 @@ const {doSomeHeavyTask} = require('./util');
 const client = require("prom-client");
 const {validateSignUpData} = require("./utils/validations"); //  Metric Collection
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const {userAuth} = require("./middlewares/auth");
+
 
 app.use(express.json());
-
+app.use(cookieParser())
 
 app.post("/signup", async (req, res) => {
     // const user = new User(req.body);
@@ -40,6 +44,10 @@ app.post("/login", async (req, res) => {
 
         const isPasswordValid = bcrypt.compare(password, user.password);
         if (isPasswordValid) {
+            const token = await jwt.sign({_id:user._id },"DEV@Tinder$123");
+            console.log(token);
+
+            res.cookie("token",token);
             res.send("Login Successfull");
         } else {
             throw new Error("Password is not correct");
@@ -48,6 +56,16 @@ app.post("/login", async (req, res) => {
         res.status(400).send("ERROR: " + err.message);
     }
 });
+
+app.get("/profile",userAuth,async (req,res)=>{
+    try{
+        const user = req.user;
+        res.send(user);
+    }catch(err){
+        res.status(400).send("ERROR: "+err.message);
+    }
+});
+
 
 
 // get user by email
