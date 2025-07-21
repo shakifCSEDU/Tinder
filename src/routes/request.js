@@ -1,16 +1,59 @@
 const express = require('express');
 const {userAuth} = require("../middlewares/auth");
-const connectionRouter = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require("../models/user");
+const requestRouter = express.Router();
+const ConnectionRequest = require("../models/connectionRequest");
 
 
 
-connectionRouter.get("/sendConnectionRequest",userAuth,async (req, res) => {
-    const user = req.user;
-    res.send(user.firstName+" sent the connect request! ");
+requestRouter.post("/request/send/:status/:toUserId",userAuth,async (req, res) => {
+    try{
+        const fromUserId = req.user._id;
+        const toUserId = req.params.toUserId;
+        const status = req.params.status;
+
+        const allowedStatus = ["ignore", "interested"];
+
+        if(!allowedStatus.includes(status)){
+            return res.status(400).send("Invalid status");
+        }
+
+        const toUser = await User.findById(toUserId);
+
+        if(toUserId === fromUserId){
+            return res.status(400).send("You cannot send connection request to yourself");
+        }
+
+        if(!toUser){
+            return res.status(404).send("User not found");
+        }
+
+
+        const existingConnectionRequest = await ConnectionRequest.findOne({
+            $or: [
+                {fromUserId, toUserId},
+                {fromUserId: toUserId, toUserId: fromUserId}
+            ],
+        });
+
+        if(existingConnectionRequest){
+            return res.status(400).send("Connection request already exists");
+        }
+
+
+        const connectionRequest = new ConnectionRequest({
+            fromUserId,
+            toUserId,
+            status
+        });
+        const savedConnectionRequest = await connectionRequest.save();
+        res.json({
+            message:"Connection request sent successfully",
+            savedConnectionRequest
+        });
+    }catch (err){
+        res.status(400).send("Error: "+err.message);
+    }
 });
 
 
-module.exports = connectionRouter;
+module.exports = requestRouter;
