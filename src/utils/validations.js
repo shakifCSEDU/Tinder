@@ -6,6 +6,9 @@ const validateSignUpData = (req)=>{
         throw new Error("Name is not valid ! ");
     }
 }
+const validateEditProfileData = (req)=>{
+    return true;
+}
 module.exports = {
     validateSignUpData,
 }
