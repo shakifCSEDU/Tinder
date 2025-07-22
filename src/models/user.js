@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
+        index: true,
         required: true,
     },
     lastName: {
@@ -16,6 +17,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         lowercase: true,
         trim : true,
+        unique: true
         // validate(value){
         //   if(!validator.isEmail("value")){
         //       throw new Error("Invalid email address :"+value);
