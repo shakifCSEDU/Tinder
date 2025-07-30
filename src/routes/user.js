@@ -9,7 +9,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
     try {
         const connectionRequests = await connectionRequest.find({
             toUserId: loggedInUser._id,
-            status: "pending",
+            status: "interested",
         }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "age", "gender"]);
 
         res.json({
