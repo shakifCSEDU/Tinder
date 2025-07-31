@@ -79,7 +79,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
                 {_id: {$ne: loggedInUser._id}}
             ]
         }).select("firstName lastName photoUrl age gender about skills").skip(skip).limit(limit);
-        res.send(users);
+        res.send({data:users});
 
     } catch (err) {
         res.status(400).json({message: "Error " + err.message});
