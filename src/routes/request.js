@@ -10,7 +10,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
         const toUserId = req.params.toUserId;
         const status = req.params.status;
 
-        const allowedStatus = ["ignore", "interested"];
+        const allowedStatus = ["ignored", "interested"];
 
         if (!allowedStatus.includes(status)) {
             return res.status(400).send("Invalid status");
